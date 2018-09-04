@@ -18,16 +18,13 @@ def plotratioz( ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, l
         edratio=np.sqrt((eda/db)**2 + (da/db**2*edb)**2)/dratio/np.log(10.)
 
         sel=np.where(abs(grid['LOGQ']-d.qgrid) == np.min(abs(grid['LOGQ']-d.qgrid)))[0] 
+        
         ax.plot(grid['LOGZ'][sel]+logOHsun, np.log10(gridratio[sel]),'--')
         ax.set_ylim(yrange)
         ax.set_xlim(min(grid['LOGZ'])+logOHsun-0.1, max(grid['LOGZ'])+logOHsun+0.1)
         ax.set_xlabel('12+log(O/H)')
         ax.set_ylabel(title)
-        ''' for i in range(n_elements(auxqarr)-1):
-            sel=np.where(grid['LOGQ'] == auxqarr[i]) 
-            plt.plot(grid[sel]['LOGZ']+logOHsun, np.log10(gridratio[sel]),'.', color='0.75',linewidth = 3)
-        '''
-
+        
         for i in range(len(auxqarr0)):
             sel=np.where(grid0['LOGQ'] == auxqarr0[i]) 
             ax.plot(grid0[sel]['LOGZ']+logOHsun, np.log10(gridratio0[sel]),color='gray',linewidth = 1)
@@ -54,6 +51,8 @@ def plotratioz( ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, l
             ax.errorbar([d.Zgrid], np.log10(dratio), yerr = edratio1, fmt = 'o', xerr = [[d.edownZgrid]*len([d.Zgrid]), [d.eupZgrid]*len([d.Zgrid])], linewidth=2, color='k')
             symbols = [u'\u2191']
             ax.plot( d.Zgrid, np.log10(dratio), symbols,size = 10, linewidth=4 , color='k')
+            
+        
 
 def  plotratioq (ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, logOHsun, d, ax, yrange=[-2.0,2.0], title='log(ratio)'):
 # plot a line ratio vs the ionization parameter
@@ -77,12 +76,6 @@ def  plotratioq (ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, 
         ax.set_xlim(min(grid['LOGQ'])-0.1, max(grid['LOGQ'])+0.1)
         ax.set_xlabel('log(q)')
         ax.set_ylabel(title)
-
-        ''' for i in range (n_elements(auxzarr)-1):
-        sel=np.where(grid.logz ==  auxzarr[i]) 
-        sel=sel[np.sort(grid[sel].logq)]
-        plt.plot(grid[sel].logq, math.log10(gridratio[sel]), '.', color='0.75', linewidth = 3)
-        '''
 
         for i in range(len(auxzarr0)):
             sel=np.where(grid0['LOGZ'] == auxzarr0[i])[0]

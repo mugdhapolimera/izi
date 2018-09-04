@@ -7,14 +7,36 @@ from astropy.table import Table
 
 def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
     
-    #GET LINE IDs IN THE GRID AND INDEX OF EACH LINE
-    id0=grid0['ID'][0]
-    nlines0=len(id0)
-    for i in range (nlines0-1):
-        'in'+id0[i]+"=where(id0 eq '"+id0[i]+"')"
+    #CREATE AN EMPTY GRID 
+    nlines0=len(grid0['ID'][0])
     
+    id_str = []
+    for i in range(nz1*nq1):
+        id_str.append(grid0['ID'][0])
+    id_str = np.array(id_str)
+
+    names = []
+    for i in range(nz1*nq1):
+        names.append(grid0[0]['NAME'])    
+    names = np.array(names)
+
+    fluxlines = []
+    for i in range(nz1*nq1):
+        fluxlines.append(np.zeros(nlines0))    
+    fluxlines = np.array(fluxlines)
+
+    data = { 'NAME'    : names,
+             'LOGOHSUN': np.ones(nz1*nq1)*grid0['LOGOHSUN'][0],
+             'LOGZ'    : np.zeros(nz1*nq1),
+             'LOGQ'    : np.zeros(nz1*nq1),
+             'ID'      : id_str,
+             'FLUX'    : fluxlines}
+
+    grid = Table(data, names = ('NAME','LOGOHSUN', 'LOGZ', 'LOGQ', 'ID', 'FLUX'))
+
+    
+    #GET LINE IDs IN THE GRID AND INDEX OF EACH LINE
     if (method == 'gpy'):
-        
         Z = np.array(grid0['LOGZ'])
         q = np.array(grid0['LOGQ'])
 
@@ -49,9 +71,13 @@ def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
                     ngrid = i*nq1 + j
                     test_input[ngrid,0] = zarr[i]
                     test_input[ngrid,1] = qarr[j]
+            ngrid += 1
             test_output = m.predict(test_input)[0]
             if (np.isnan(test_output).all()):
                 test_output = np.ones(len(test_input))
+                
+            grid['FLUX'][:,no] = test_output.reshape(ngrid)
+
         
             if (plot):
                 #Plot GP Model and 2-D Interpolation Results
@@ -78,73 +104,55 @@ def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
                 ax.set_xlabel('Log(Z)')
                 ax.set_ylabel('Log(q)')
                 ax.set_zlabel('Residuals of Relative'+grid0[0]['ID'][no]+'Intensity')
+        grid['LOGZ'] = test_input[:,0]
+        grid['LOGQ'] = test_input[:,1]
+
 
     elif (method == 'scipy'):
-  
+        
         Z = np.array(grid0['LOGZ'])
         q = np.array(grid0['LOGQ'])
-
         x = np.unique(Z)
         y = np.unique(q)
-        X, Y = np.meshgrid(x,y)
-        nlines0 = 35
-        z = np.zeros([len(y), len(x),nlines0])
 
+        nlines0 = len(grid0['ID'][0])
+        
+        z = np.zeros([nlines0, len(y), len(x)])
         fluxarr = np.zeros([nlines0,nz1,nq1])
         zarr=np.linspace(min(grid0['LOGZ']), max(grid0['LOGZ']), nz1)
         qarr=np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq1)
         gridx, gridy = np.meshgrid(zarr, qarr)
 
+        X, Y = np.meshgrid(x,y)
+
         for k in range (nlines0):
-            for i in range(len(x)):
+            for i in range(len(x)): 
                 for j in range(len(y)):
-                    n = np.where((q == y[j]) & (Z == x[i]))[0]
-                    z[j,i,k] = grid0['FLUX'][n,k]
+                    ind = np.where((grid0['LOGZ'] == x[i]) & (grid0['LOGQ'] == y[j]))[0]
 
-            f = scipy.interpolate.interp2d(x,y,z[:,:,k],'linear')
+                    z[k][j][i] = grid0['FLUX'][:,k][ind]
+
+            f = scipy.interpolate.interp2d(x,y,z[k,:,:],'linear')
             fluxarr[k,:,:] = f(zarr,qarr)
+            fluxarr[k] = fluxarr[k].transpose()
 
-            if (plot):
+            if plot:
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection='3d')
                 ax.plot_surface(gridx, gridy, fluxarr[k])
                 ax.scatter(X,Y,z[:,:,k],'r')
+        
+        for i in range(nz1):
+            for j in range(nq1):
+                ngrid = i*nq1 + j
+                grid[ngrid]['LOGZ'] = zarr[i]
+                grid[ngrid]['LOGQ'] = qarr[j]
+                for k in range(nlines0):
+                    grid[ngrid]['FLUX'][k] = fluxarr[k,i,j]
+                    #print 'yes'
+        dlogz = (zarr[nz1-1]-zarr[0])/(nz1-1)
+        dlogq = (qarr[nq1-1]-qarr[0])/(nq1-1)
+        ngrid=ngrid+1
 
-    #CREATE AN EMPTY GRID 
-    id_str = []
-    for i in range(nz1*nq1):
-        id_str.append(id0)
-    id_str = np.array(id_str)
-
-    names = []
-    for i in range(nz1*nq1):
-        names.append(grid0[0]['NAME'])    
-    names = np.array(names)
-
-    grid_flux = []
-    for i in range(nz1*nq1):
-        grid_flux.append(np.zeros(nlines0))    
-    grid_flux = np.array(grid_flux)
     
-    logOHsun = grid0['LOGOHSUN'][0]
-    
-    data = { 'NAME'     : names,
-             'LOGOHSUN' : logOHsun*np.ones(nz1*nq1),
-             'LOGZ'     : np.zeros(nz1*nq1),
-             'LOGQ'     : np.zeros(nz1*nq1),
-             'ID'       : id_str,
-             'FLUX'     : grid_flux}
-
-    grid = Table(data, names = ('NAME', 'LOGOHSUN', 'LOGZ', 'LOGQ', 'ID', 'FLUX'))
-
-    for i in range(nz1):
-        for j in range(nq1):
-            ngrid = i*nq1 + j
-            grid[ngrid]['LOGZ'] = zarr[i]
-            grid[ngrid]['LOGQ'] = qarr[j]
-            for k in range(nlines0):
-                grid[ngrid]['FLUX'][k] = fluxarr[k,i,j]
-            #print 'yes'
-
-    ngrid=ngrid+1
-    return grid, ngrid    
+    return grid, ngrid, zarr, qarr, dlogz, dlogq    
