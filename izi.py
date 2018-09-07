@@ -4,7 +4,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import PyQt4
+#import PyQt4
 import os
 from astropy.table import Table
 import pandas as pd
@@ -13,8 +13,8 @@ import scipy.interpolate
 
 # Setting System Path
 import sys
-#sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
+sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
+#sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 
 #Importing Custom Utility Files
 #from izi_utils.tabulate import idl_tabulate
@@ -28,7 +28,8 @@ def uprior(xaxis):
     return 1./(xaxis[1]-xaxis[0])
 
 
-def izi(fluxin, errorin, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
+#def izi(fluxin, errorin, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
+def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
         plot_flag = 1, epsilon = 0.15, nz1 = 50, nq1 = 50, outgridfile = True, nonorm = False ):
     
 #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)

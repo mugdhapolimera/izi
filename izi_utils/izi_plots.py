@@ -97,7 +97,7 @@ def izi_pdf(d, grid, postz, postq, post, like):
     plt.savefig('izipdf.png')
 
     plt.show(block=True)
-    plt.hold(True)
+    #plt.hold(True)
 
     
 def zratios_plots (grid, grid0, d, flag0):
@@ -130,9 +130,10 @@ def zratios_plots (grid, grid0, d, flag0):
         da=-666
         eda=np.sum(([d.flux[inoiii5007], d.flux[inoii3726]])[np.where([flag0[inoiii5007],flag0[inoii3726]] == 1)[0]]) + np.sum(([d.error[inoiii5007],d.error[inoii3726]])[np.where([flag0[inoiii5007],flag0[inoii3726]] == 2)[0]])
 
-    if (flag0[inoiii5007] == 0 or flag0[inoii3726] == 0): 
-        flagb = flag0[inhbeta]
-
+    if (flag0[inoiii5007] == 0 or flag0[inoii3726] == 0):
+        flaga = 0
+        
+    flagb = flag0[inhbeta]
     plotratioz(ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb,  grid, grid0, logOHsun, d, ax1, title='log(R23)', yrange=[-1.5,1.5])
 
     # ======= N2O2 ========
@@ -242,7 +243,7 @@ def zratios_plots (grid, grid0, d, flag0):
     plotratioz(ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, logOHsun, d, ax8, title='log(S2)', yrange=[-3.0,0.0])
 
     plt.show(block=True)
-    plt.hold(True)
+    #plt.hold(True)
 
     #plt.savefig('izi_zratios.png')
 
@@ -277,7 +278,8 @@ def qratios_plots(grid, grid0, d, flag0):
         eda=total(([d.flux[inoiii5007], d.flux[inoii3726]])[np.where([flag0[inoiii5007],flag0[inoii3726]] == 1)[0]]) + np.sum(([d.error[inoiii5007],d.error[inoii3726]])[np.where([flag0[inoiii5007],flag0[inoii3726]] == 2)[0]])
 
     if (flag0[inoiii5007] == 0 or flag0[inoii3726] == 0): 
-        flagb = flag0[inhbeta]
+        flaga = 0
+    flagb = flag0[inhbeta]
 
     plotratioq(ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb,  grid, grid0, logOHsun, d, ax1, title='log(R23)', yrange=[-1.5,1.5])
 
@@ -389,6 +391,6 @@ def qratios_plots(grid, grid0, d, flag0):
 
     
     plt.show(block=True)
-    plt.hold(True)
+    #plt.hold(True)
     #plt.savefig('izi_qratios.png')
 
