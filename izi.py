@@ -49,12 +49,13 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
     #Levesque 2010, HIGH MASS LOSS, CSF 6Myr, n=100 cm^-3
 
     #READ GRID
-    try:
-        gridfile = intergridfile
-    except NameError:
+    if 'intergridfile' in kwargs.keys():
+        gridfile = kwargs['intergridfile']
+    else:
         gridfile = gridfile
 
     grid0 = Table.read(gridfile, format='fits')
+    
     id0=grid0['ID'][0]
     nlines0 = len(id0)
     for i in range (nlines0-1):
@@ -64,8 +65,12 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
     ngrid=len(grid0['LOGZ'])
 
 
-    logOHsun = grid0['LOGOHSUN'][0]      
-
+    if 'logOHsun' in kwargs.keys():
+        logOHsun = kwargs['logOHsun']
+    else:
+        logOHsun = grid0['LOGOHSUN'][0] 
+    
+    
     #CUT GRID TO LOGZLIMITS AND LOGQLIMITS 
     try:
         logzlimits
@@ -98,7 +103,7 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
         grid, ngrid, zarr, qarr, dlogz, dlogq = grid_interpolate(grid0, method = 'scipy', nz1 = nz1, nq1 = nq1)
     else:
         grid  = grid0
-        ngrid = len(grid['FLUX'])
+        ngrid = len(grid['LOGZ'])
         zarr  = np.unique(grid0['LOGZ'])
         qarr  = np.unique(grid0['LOGQ'])
         nz1   = len(zarr)
@@ -181,11 +186,11 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
             norm = grid[i]['FLUX'][[x for x,item in enumerate(grid[i]['ID']) if idnorm in item][0]]
             grid[i]['FLUX'] = grid[i]['FLUX']/norm
 
-    like=np.ones(ngrid)
-    post=np.ones(ngrid)
+    like=np.ones(ngrid, dtype = np.double)
+    post=np.ones(ngrid, dtype = np.double)
     zrange=[min(grid['LOGZ']), max(grid['LOGZ'])]
     qrange=[min(grid['LOGQ']), max(grid['LOGQ'])]
-
+    
     for i in range(ngrid):
         for j in range(ngood):
                             #CALCULATE LIKELIHOOD
@@ -195,7 +200,7 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
                 error_quad = (d.error[good][j]**2 + (epsilon2*grid[i]['FLUX'][good][j])**2)
                 exponent = np.exp(-1.0*flux_diff/(2.0*error_quad))
                 like[i] = like[i]*1.0/np.sqrt(2.0*3.14)*exponent/normalization
-
+                
             if (flag[j] == 2): # if upper limit
                 like[i] = like[i]*0.5*( 1 + scipy.special.erf((d.error[good][j] - grid[i]['FLUX'][good][j])/(np.sqrt(d.error[good][j]**2+(epsilon2*grid[i]['FLUX'][good][j])**2)*np.sqrt(2))))
                             #CALCULATE POSTERIOR BY INCLUDING PRIORS AND NORMALIZING
@@ -207,7 +212,6 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
             post[i] = uprior(zrange)*userprior(grid[i].logq, logqprior[:,0], logqprior[:,1])*like[i]
         if (('logzprior' in locals()) == 1) & (('logqprior' in locals()) == 1):
             post[i] = userprior(grid[i].logz, logzprior[:,0], logzprior[:,1])*userprior(grid['LOGQ'][i], logqprior[:,0], logqprior[:,1])*like[i]
-
     like[np.where(np.isfinite(like) == 0)]=0
     post[np.where(np.isfinite(post) == 0)]=0
 
@@ -229,21 +233,21 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
 
     # CALCULATE BEST FIT METALLICITY, IONIZATION PARAMETER AND ERRORS
 
-    post1sig=(sortpost[np.where(sumpost >= 0.683)])[0]
-    post2sig=(sortpost[np.where(sumpost >= 0.955)])[0]
-    post3sig=(sortpost[np.where(sumpost >= 0.997)])[0]
+    post1sig=(sortpost[np.where(sumpost >= 0.683)])#[0]
+    post2sig=(sortpost[np.where(sumpost >= 0.955)])#[0]
+    post3sig=(sortpost[np.where(sumpost >= 0.997)])#[0]
 
-    like1sig=(sortlike[np.where(sumlike >= 0.683)])[0]
-    like2sig=(sortlike[np.where(sumlike >= 0.955)])[0]
-    like3sig=(sortlike[np.where(sumlike >= 0.997)])[0]
+    like1sig=(sortlike[np.where(sumlike >= 0.683)])#[0]
+    like2sig=(sortlike[np.where(sumlike >= 0.955)])#[0]
+    like3sig=(sortlike[np.where(sumlike >= 0.997)])#[0]
 
     d.Zgrid = sortz[0]+logOHsun
-    d.edownZgrid = sortz[0]-min(sortz[np.where(sumpost <= 0.683)])
-    d.eupZgrid = max(sortz[np.where(sumpost <= 0.683)])-sortz[0]
+    d.edownZgrid = sortz[0]-min( list(sortz[np.where(sumpost <= 0.683)]) or [0])
+    d.eupZgrid = max(list(sortz[np.where(sumpost <= 0.683)])  or [0])-sortz[0]
 
     d.qgrid = sortq[0]
-    d.edownqgrid = sortq[0]-min(sortq[np.where(sumpost <= 0.683)])
-    d.eupqgrid = max(sortq[np.where(sumpost <= 0.683)])-sortq[0]
+    d.edownqgrid = sortq[0]-min(list(sortq[np.where(sumpost <= 0.683)])  or [0])
+    d.eupqgrid = max(list(sortq[np.where(sumpost <= 0.683)])  or [0])-sortq[0]
 
 
     # COMPUTE chi2
@@ -269,12 +273,14 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
 
     d.Zgridmarmod = zarr[np.where(postz == max(postz))[0]] + logOHsun # max of PDF
     d.Zgridmarmean = np.sum(zarr*postz)/np.sum(postz) + logOHsun # first moment of PDF
-    d.edownZgridmarmod = d.Zgrid - logOHsun - zarr[np.where(sumpostz >= (1.0-0.683)/2.0)[0][0]]
-    d.eupZgridmarmod = zarr[np.where(sumpostz >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.Zgrid + logOHsun
-    d.edownZgridmarmean = d.Zgrid - logOHsun - zarr[np.where(sumpostz >= (1.0-0.683)/2.0)[0][0]]
 
-    d.eupZgridmarmean = zarr[np.where(sumpostz >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.Zgrid + logOHsun
-
+    if len(np.where(sumpostz >= (1.0-0.683)/2.0)[0]) != 0:
+        d.edownZgridmarmod = d.Zgrid - logOHsun - zarr[np.where(sumpostz >= (1.0-0.683)/2.0)[0][0]]
+        d.eupZgridmarmod = zarr[np.where(sumpostz >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.Zgrid + logOHsun
+        d.edownZgridmarmean = d.Zgrid - logOHsun - zarr[np.where(sumpostz >= (1.0-0.683)/2.0)[0][0]]
+        d.eupZgridmarmean = zarr[np.where(sumpostz >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.Zgrid + logOHsun
+    else:
+        d.edownZgridmarmod = d.eupZgridmarmod = d.edownZgridmarmean = d.eupZgridmarmean = 0
     #posterior for q, marginalizing over Z
     postq = np.zeros(nq1)
     for j in range(nq1):
@@ -289,10 +295,14 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
 
     d.qgridmarmod = qarr[np.where(postq == max(postq))[0]] #MAx of PDF
     d.qgridmarmean = np.sum(qarr*postq)/np.sum(postq) # first moment of PDF
-    d.edownqgridmarmod = d.qgrid - qarr[np.where(sumpostq >= ((1.0-0.683)/2.0))[0][0]]
-    d.eupqgridmarmod = qarr[np.where(sumpostq >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.qgrid
-    d.edownqgridmarmean = d.qgrid - qarr[np.where(sumpostq >= ((1.0-0.683)/2.0))[0][0]]
-    d.eupqgridmarmean = qarr[np.where(sumpostq >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.qgrid
+
+    if len(np.where(sumpostz >= (1.0-0.683)/2.0)[0]) != 0:
+        d.edownqgridmarmod = d.qgrid - qarr[np.where(sumpostq >= ((1.0-0.683)/2.0))[0][0]]
+        d.eupqgridmarmod = qarr[np.where(sumpostq >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.qgrid
+        d.edownqgridmarmean = d.qgrid - qarr[np.where(sumpostq >= ((1.0-0.683)/2.0))[0][0]]
+        d.eupqgridmarmean = qarr[np.where(sumpostq >= (1.0-(1.0-0.683)/2.0))[0][0]] - d.qgrid
+    else:
+        d.edownqgridmarmod = d.eupqgridmarmod = d.edownqgridmarmean = d.eupqgridmarmean = 0
 
     # WRITE MARGINALIZED PDFS
     d.zarr=zarr+logOHsun
@@ -347,8 +357,11 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
     if not os.path.exists(directory):
         os.makedirs(directory)
     os.chdir(directory)
-    izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like, plot_flag = plot_flag)
-    izi_plots.zratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
-    izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
+    if (np.sum(post) == 0. or np.sum(like) == 0.):
+        return d
+    else:
+        izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like, plot_flag = plot_flag)
+        izi_plots.zratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
+        izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
     
     return d

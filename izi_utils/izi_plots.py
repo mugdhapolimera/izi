@@ -28,13 +28,43 @@ def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     for i in range(len(sortpost)):
         sumpost[i] = np.sum(sortpost[0:i])/np.sum(sortpost) 
 
-    post1sig=(sortpost[np.where(sumpost >= 0.683)])[0]
-    post2sig=(sortpost[np.where(sumpost >= 0.955)])[0]
-    post3sig=(sortpost[np.where(sumpost >= 0.997)])[0]
+    post1sig=(sortpost[np.where(sumpost >= 0.683)])
+    post2sig=(sortpost[np.where(sumpost >= 0.955)])
+    post3sig=(sortpost[np.where(sumpost >= 0.997)])
 
-    like1sig=(sortlike[np.where(sumlike >= 0.683)])[0]
-    like2sig=(sortlike[np.where(sumlike >= 0.955)])[0]
-    like3sig=(sortlike[np.where(sumlike >= 0.997)])[0]
+    if post1sig.shape == 0:
+        post1sig = post1sig[0]
+    else:
+        post1sig = 0
+    
+    if post3sig.shape == 0:
+        post3sig = post3sig[0]
+    else:
+        post3sig = 0
+    if post2sig.shape == 0:
+        post2sig = post2sig[0]
+    else:
+        post2sig = 0
+    
+    like1sig=(sortlike[np.where(sumlike >= 0.683)])
+    like2sig=(sortlike[np.where(sumlike >= 0.955)])
+    like3sig=(sortlike[np.where(sumlike >= 0.997)])
+    
+    if like1sig.shape == 0:
+        like1sig = like1sig[0]
+    else:
+        like1sig = 0
+    
+    if like2sig.shape == 0:
+        like2sig = like2sig[0]
+    else:
+        like2sig = 0
+
+    if like3sig.shape == 0:
+        like3sig = like3sig[0]
+    else:
+        like3sig = 0
+    
 
 
     logOHsun = grid['LOGOHSUN'][0]
@@ -51,7 +81,9 @@ def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     cmap = 'gist_earth'
 
     ax1.tricontourf(grid['LOGZ']+logOHsun, grid['LOGQ'], post,levels = levels)#, cmap = cmap)
-    ax1.tricontour(grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGZ']+logOHsun, grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGQ'], post[np.where(np.isfinite(np.log10(post)))[0]], levels=[post1sig], colors = 'cyan')
+    ax1.tricontour(grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGZ']+logOHsun, 
+                   grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGQ'], 
+                   post[np.where(np.isfinite(np.log10(post)))[0]], levels=[post1sig], colors = 'cyan')
     ax1.plot([logOHsun, logOHsun], [0,1e2], linestyle='--', linewidth=5, color='orange')
     ax1.plot([logOHsun-1.0, logOHsun-1.0], [0,1e2], linestyle='--', linewidth=5, color='orange')
     ax1.text(logOHsun+0.05, min(grid['LOGQ'])+0.1, r'$Z_{\odot}$', color = 'orange', size = 30)

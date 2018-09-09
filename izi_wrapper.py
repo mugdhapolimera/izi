@@ -30,14 +30,14 @@ cols = infile.keys()
 #Define Names of Flux lines according to Catalog
 #TODO: Make automated script   
 fluxnames = ['oii_3726_flux_ext', 'oii_3729_flux_ext', 'neiii_3869_flux_ext',
-             'h_delta_flux_ext', 'h_gamma_flux_ext', 'oiii_4363_flux_ext', 
+              'h_gamma_flux_ext', 'oiii_4363_flux_ext', 
              'h_beta_flux_ext', 'oiii_4959_flux_ext', 'oiii_5007_flux_ext',
              'hei_5876_flux_ext', 'oi_6300_flux_ext', 'nii_6548_flux_ext', 
              'h_alpha_flux_ext', 'nii_6584_flux_ext', 'sii_6717_flux_ext', 
              'sii_6731_flux_ext', 'ariii_7135_flux_ext'] 
 
 errornames = ['oii_3726_flux_ext_err', 'oii_3729_flux_ext_err', 
-              'neiii_3869_flux_ext_err', 'h_delta_flux_ext_err', 
+              'neiii_3869_flux_ext_err',  
               'h_gamma_flux_ext_err', 'oiii_4363_flux_ext_err', 
               'h_beta_flux_ext_err', 'oiii_4959_flux_ext_err', 
               'oiii_5007_flux_ext_err', 'hei_5876_flux_ext_err', 
@@ -49,7 +49,7 @@ errornames = ['oii_3726_flux_ext_err', 'oii_3729_flux_ext_err',
 #Defining IDs for different Flux Lines
 #idin = ['oiii5007', 'oiii4959', 'oiii4363' , 'nii6584',  'nii6548', 'hbeta', 'halpha' ]
 
-idin = ['oii3726', 'oii3729', 'neiii3869', 'hdelta', 'oiii4363', 'hgamma', 
+idin = ['oii3726', 'oii3729', 'neiii3869', 'oiii4363', 'hgamma', 
         'hbeta', 'oiii4959', 'oiii5007', 'hei5875', 'oi6300', 'nii6548', 
         'halpha', 'nii6584', 'sii6717', 'sii6731', 'ariii7136']
 
@@ -88,8 +88,9 @@ for gal in range(len(infile['NAME'])):
             errorin.append(infile[errornames[i]][gal])
     
     #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
-    #d = izi(fluxin, errorin, idin, plot_flag = 0, intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
+    #d = izi(fluxin, errorin, idin, plot_flag = 0, name = str(infile['NAME'][gal]), intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
     d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), plot_flag = 0, print_flag = 0)
+    #print d
     f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
     f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
     pickle.dump(d, f3)    
