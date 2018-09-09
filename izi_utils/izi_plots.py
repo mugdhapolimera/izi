@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
 import sys
 #sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
 sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 from plotratio import plotratioz 
 from plotratio import plotratioq
 
+os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/')
 
-def izi_pdf(d, grid, postz, postq, post, like):
+def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     
     #CALCULATE 1-,2-,3- SIGMA VALUES
     goodlike = np.where(np.isfinite(like))[0]
@@ -94,13 +95,14 @@ def izi_pdf(d, grid, postz, postq, post, like):
     ax3.set_ylabel('P(q)d(log q)')
     ax3.set_xlim([np.min(qarr), np.max(qarr)])
     ax3.set_ylim([0, 1.1*max(postq)])
-    plt.savefig('izipdf.png')
+    plt.savefig(str(d['name'])+'_pdf.png')
 
-    plt.show(block=True)
+    if plot_flag:
+        plt.show(block=True)
     #plt.hold(True)
 
     
-def zratios_plots (grid, grid0, d, flag0):
+def zratios_plots (grid, grid0, d, flag0, plot_flag):
     logOHsun = grid['LOGOHSUN'][0]
     
     #======== PLOTS VS METALLICITY ============
@@ -242,13 +244,15 @@ def zratios_plots (grid, grid0, d, flag0):
     flagb=flag0[inhalpha]
     plotratioz(ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, logOHsun, d, ax8, title='log(S2)', yrange=[-3.0,0.0])
 
-    plt.show(block=True)
+    plt.savefig(str(d['name'])+'_zratios.png')
+
+    if plot_flag:
+        plt.show(block=True)
     #plt.hold(True)
 
-    #plt.savefig('izi_zratios.png')
-
     
-def qratios_plots(grid, grid0, d, flag0):
+    
+def qratios_plots(grid, grid0, d, flag0, plot_flag):
     logOHsun = grid['LOGOHSUN'][0]
     
     #============= PLOTS VERSUS IONIZATION PARAMETER ===========
@@ -389,8 +393,9 @@ def qratios_plots(grid, grid0, d, flag0):
     flagb=flag0[inhalpha]
     plotratioq(ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, logOHsun, d, ax8, title='log(S2)', yrange=[-3.0,0.0])
 
-    
-    plt.show(block=True)
+    plt.savefig(str(d['name'])+'_qratios.png')
+
+    if plot_flag:
+        plt.show(block=True)
     #plt.hold(True)
-    #plt.savefig('izi_qratios.png')
 

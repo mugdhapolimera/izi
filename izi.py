@@ -29,8 +29,8 @@ def uprior(xaxis):
 
 
 #def izi(fluxin, errorin, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
-def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
-        plot_flag = 1, epsilon = 0.15, nz1 = 50, nq1 = 50, outgridfile = True, nonorm = False ):
+def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
+        plot_flag = 1, print_flag = True, epsilon = 0.15, nz1 = 50, nq1 = 50, interpolate_flag = True, outgridfile = True, nonorm = False, **kwargs ):
     
 #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
 
@@ -45,19 +45,15 @@ def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Doc
     if (len(error) != nlines | len(idno) != nlines): 
         print 'ERROR: Flux, Error, and ID arrays do not have the same number of elements'
 
-    #READ STRUCTURE CONTAINING PHOTO-IONIZATION MODEL GRID
-
-    #IF NOT SPECIFIED BY USER USE DEFAULT: 
+    #DEFAULT GRID: 
     #Levesque 2010, HIGH MASS LOSS, CSF 6Myr, n=100 cm^-3
 
-    '''try:
-        gridfile
-    except NameError:
-        #os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids')
-        os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes')
-        gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits'
-    '''    
     #READ GRID
+    try:
+        gridfile = intergridfile
+    except NameError:
+        gridfile = gridfile
+
     grid0 = Table.read(gridfile, format='fits')
     id0=grid0['ID'][0]
     nlines0 = len(id0)
@@ -97,10 +93,22 @@ def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Doc
     nq1 = 50
     zarr=np.linspace(min(grid0['LOGZ']), max(grid0['LOGZ']), nz1)
     qarr=np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq1)
-    grid, ngrid, zarr, qarr, dlogz, dlogq = grid_interpolate(grid0, method = 'scipy', nz1 = nz1, nq1 = nq1)
-
+    
+    if (interpolate_flag):    
+        grid, ngrid, zarr, qarr, dlogz, dlogq = grid_interpolate(grid0, method = 'scipy', nz1 = nz1, nq1 = nq1)
+    else:
+        grid  = grid0
+        ngrid = len(grid['FLUX'])
+        zarr  = np.unique(grid0['LOGZ'])
+        qarr  = np.unique(grid0['LOGQ'])
+        nz1   = len(zarr)
+        nq1   = len(qarr)
+        dlogz = (zarr[nz1-1]-zarr[0])/(nz1-1)
+        dlogq = (qarr[nq1-1]-qarr[0])/(nq1-1)
+        
     #CREATE DATA STRUCTURE CONTAINING LINE FLUXES AND ESTIMATED PARAMETERS
-    d = pd.Series({   'id'                  : id0,
+    d = pd.Series({      'name'             : str(name),
+                         'id'               : id0,
                          'flux'             : np.zeros(nlines0) -666,
                          'error'            : np.zeros(nlines0) -666,
                          'chi2'             : 0., 
@@ -131,11 +139,10 @@ def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Doc
                     })
 
     grid['ID'] = [np.char.strip(x) for x in grid['ID']]
-
     #FILL STRUCTURE WITH LINE FLUXES
     for i in range(nlines):
         #auxind=np.where(d.id == idno[i])[0]
-        auxind = [x for x,item in enumerate(d.id) if idno[i] in item][0]
+        auxind = [x for x,item in enumerate(d.id) if idno[i] in item]
         if (auxind == 0):
             print 'ERROR: ===== Line ID '+idno[i]+'not recognized ====='
         d.flux[auxind]=flux[i]
@@ -157,7 +164,8 @@ def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Doc
     # NORMALIZE LINE FLUXES TO H-BETA OR
     # IF ABSENT NORMALIZE TO BRIGHTEST LINE
     if not (nonorm):
-        print 'Normalizing Fluxes'
+        if print_flag:
+            print 'Normalizing Fluxes'
 
         idnorm = 'hbeta'
         if (d.flux[[x for x,item in enumerate(d.id) if idnorm in item][0]] == -666):
@@ -323,24 +331,24 @@ def izi(fluxin, errorin, idin, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Doc
         d.flag[3]=3
     if ((max(postq[0:1]) > 0.5*max(postq)) & (max(postq[nq1-2:nq1-1]) > 0.5*max(postq))): 
         d.flag[3]=0
-
-    print '===== BEST FIT FROM JOINT PDF MODE ====='
-    print '===== Z =====', d.Zgrid, d.edownZgrid, d.eupZgrid, d.Zgrid-d.edownZgrid, d.Zgrid+d.eupZgrid 
-    print '===== q =====', d.qgrid, d.edownqgrid, d.eupqgrid, d.qgrid-d.edownqgrid, d.qgrid+d.eupqgrid
-    c=2.99792458e10 # cm/s 
-    print '=== U=q/c ===', d.qgrid-np.log10(c), d.edownqgrid, d.eupqgrid, d.qgrid-np.log10(c)-d.edownqgrid, d.qgrid-np.log10(c)+d.eupqgrid
-    print '================ FLAGS ====================='
-    print d.flag
-    print '============================================'
+    
+    if print_flag:
+        print '===== BEST FIT FROM JOINT PDF MODE ====='
+        print '===== Z =====', d.Zgrid, d.edownZgrid, d.eupZgrid, d.Zgrid-d.edownZgrid, d.Zgrid+d.eupZgrid 
+        print '===== q =====', d.qgrid, d.edownqgrid, d.eupqgrid, d.qgrid-d.edownqgrid, d.qgrid+d.eupqgrid
+        c=2.99792458e10 # cm/s 
+        print '=== U=q/c ===', d.qgrid-np.log10(c), d.edownqgrid, d.eupqgrid, d.qgrid-np.log10(c)-d.edownqgrid, d.qgrid-np.log10(c)+d.eupqgrid
+        print '================ FLAGS ====================='
+        print d.flag
+        print '============================================'
 
     # PLOT RESULTS
-    plot_flag = 0
-    try:
-        plot
-    except NameError:
-        plot_flag = 1
-
-    if (plot_flag == 1):
-        izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like)
-        izi_plots.zratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0)
-        izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0)
+    directory = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/'+str(d['name'])
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    os.chdir(directory)
+    izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like, plot_flag = plot_flag)
+    izi_plots.zratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
+    izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
+    
+    return d

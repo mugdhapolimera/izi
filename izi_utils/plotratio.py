@@ -2,7 +2,7 @@ import numpy as np
 
 def plotratioz( ga, gb, ga0, gb0, da, db, eda, edb, flaga, flagb, grid, grid0, logOHsun, d, ax, yrange=[-2.0, 2.0], title='log(ratio)'):
     #plot line ratio vs metallicity
-        print flaga, flagb
+        #print flaga, flagb
         auxqarr = np.unique(grid['LOGQ'])
         auxqarr0 = np.unique(grid0['LOGQ'])
 
