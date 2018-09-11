@@ -71,22 +71,21 @@ fluxnames = ['F_OIII_5007_ERR_BROAD' ,
 'F_HA_BROAD']
 '''
 #Making Flux and Error Arrays
-f1 = open('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_Z.txt', 'w')
+f1 = open('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_Z2.txt', 'w')
 f1.write("#Name \t Z_Estimate \t Err_down \t Err_up\r\n")
-f2 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_q.txt", "w")  
+f2 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_q2.txt", "w")  
 f2.write("#Name \t q_Estimate \t Err_down \t Err_up\r\n")
-f3 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_results.pkl", "w")  
+f3 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_results2.pkl", "w")  
 
 print len(infile['NAME'])
 print time.time()         
-for gal in range(len(infile['NAME'])):
+for gal in range(0,len(infile['NAME'])):
     fluxin = []
     errorin = []
     print gal, infile['NAME'][gal]
     for i in range(0,len(fluxnames)):
             fluxin.append(infile[fluxnames[i]][gal])
             errorin.append(infile[errornames[i]][gal])
-    
     #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
     #d = izi(fluxin, errorin, idin, plot_flag = 0, name = str(infile['NAME'][gal]), intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
     d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), plot_flag = 0, print_flag = 0)

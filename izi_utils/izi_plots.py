@@ -78,8 +78,9 @@ def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
 
     ncolors=256
     levels = col_range[0] + (col_range[1]-col_range[0])/(ncolors-1.0)*np.arange(ncolors)
+    if (np.sum(levels) == 0.):
+        return
     cmap = 'gist_earth'
-
     ax1.tricontourf(grid['LOGZ']+logOHsun, grid['LOGQ'], post,levels = levels)#, cmap = cmap)
     ax1.tricontour(grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGZ']+logOHsun, 
                    grid[np.where(np.isfinite(np.log10(post)))[0]]['LOGQ'], 

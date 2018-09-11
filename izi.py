@@ -186,8 +186,8 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
             norm = grid[i]['FLUX'][[x for x,item in enumerate(grid[i]['ID']) if idnorm in item][0]]
             grid[i]['FLUX'] = grid[i]['FLUX']/norm
 
-    like=np.ones(ngrid, dtype = np.double)
-    post=np.ones(ngrid, dtype = np.double)
+    like=np.ones(ngrid)
+    post=np.ones(ngrid)
     zrange=[min(grid['LOGZ']), max(grid['LOGZ'])]
     qrange=[min(grid['LOGQ']), max(grid['LOGQ'])]
     
@@ -358,6 +358,7 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
         os.makedirs(directory)
     os.chdir(directory)
     if (np.sum(post) == 0. or np.sum(like) == 0.):
+        print 'stopped'
         return d
     else:
         izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like, plot_flag = plot_flag)
