@@ -13,8 +13,8 @@ import scipy.interpolate
 
 # Setting System Path
 import sys
-sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-#sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
+#sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
+sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 
 #Importing Custom Utility Files
 #from izi_utils.tabulate import idl_tabulate
@@ -28,8 +28,8 @@ def uprior(xaxis):
     return 1./(xaxis[1]-xaxis[0])
 
 
-#def izi(fluxin, errorin, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
-def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
+def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
+#def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
         plot_flag = 1, print_flag = True, epsilon = 0.15, nz1 = 50, nq1 = 50, interpolate_flag = True, outgridfile = True, nonorm = False, **kwargs ):
     
 #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
@@ -100,7 +100,7 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
     qarr=np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq1)
     
     if (interpolate_flag):    
-        grid, ngrid, zarr, qarr, dlogz, dlogq = grid_interpolate(grid0, method = 'scipy', nz1 = nz1, nq1 = nq1)
+        grid, ngrid, zarr, qarr, dlogz, dlogq = grid_interpolate(grid0, method = 'gpy', nz1 = nz1, nq1 = nq1)
     else:
         grid  = grid0
         ngrid = len(grid['LOGZ'])
@@ -353,7 +353,8 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
         print '============================================'
 
     # PLOT RESULTS
-    directory = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/'+str(d['name'])
+    #directory = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/'+str(d['name'])
+    directory = 'C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/izi/izi_plots/'+str(d['name'])
     if not os.path.exists(directory):
         os.makedirs(directory)
     os.chdir(directory)

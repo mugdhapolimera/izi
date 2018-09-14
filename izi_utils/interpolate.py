@@ -39,6 +39,9 @@ def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
     if (method == 'gpy'):
         Z = np.array(grid0['LOGZ'])
         q = np.array(grid0['LOGQ'])
+        zarr=np.linspace(min(grid0['LOGZ']), max(grid0['LOGZ']), nz1)
+        qarr=np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq1)
+        
 
         # Fit a GP
         
@@ -71,6 +74,10 @@ def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
                     ngrid = i*nq1 + j
                     test_input[ngrid,0] = zarr[i]
                     test_input[ngrid,1] = qarr[j]
+            
+            dlogz = (zarr[nz1-1]-zarr[0])/(nz1-1)
+            dlogq = (qarr[nq1-1]-qarr[0])/(nq1-1)
+            
             ngrid += 1
             test_output = m.predict(test_input)[0]
             if (np.isnan(test_output).all()):

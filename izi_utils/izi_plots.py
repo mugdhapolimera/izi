@@ -7,8 +7,8 @@ sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 from plotratio import plotratioz 
 from plotratio import plotratioq
 
-os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/')
-
+#os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/')
+os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\izi_plots')
 def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     
     #CALCULATE 1-,2-,3- SIGMA VALUES
@@ -133,6 +133,8 @@ def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     if plot_flag:
         plt.show(block=True)
     #plt.hold(True)
+    else:
+        plt.close()
 
     
 def zratios_plots (grid, grid0, d, flag0, plot_flag):
@@ -282,6 +284,9 @@ def zratios_plots (grid, grid0, d, flag0, plot_flag):
     if plot_flag:
         plt.show(block=True)
     #plt.hold(True)
+        
+    else:
+        plt.close()
 
     
     
@@ -431,4 +436,7 @@ def qratios_plots(grid, grid0, d, flag0, plot_flag):
     if plot_flag:
         plt.show(block=True)
     #plt.hold(True)
+    
+    else:
+        plt.close()
 
