@@ -17,7 +17,6 @@ py  = np.genfromtxt('IZI_Z.txt', dtype = None, names = ['name', 'Z', 'err_down',
 os.chdir('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/')
 gpy = np.genfromtxt('IZI_Z2_gpy.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 
-print py['Z'].shape
 np.polyfit(idl['Z'],py['Z'],1)#,w=1/np.sqrt(y_err**2 + x_err**2),full=False,cov=True)
 
 plt.figure()
@@ -33,3 +32,21 @@ plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr =
 plt.figure()
 plt.plot(np.arange(7,10), np.arange(7,10), 'b-')
 plt.errorbar(py['Z'], gpy['Z'], xerr = [py['err_down'], py['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
+
+
+plt.figure()
+plt.plot(np.arange(7,10), np.zeros(len(np.arange(7,10))), 'b-')
+plt.errorbar(py['Z'], py['Z']-idl['Z'],fmt = 'ro')
+plt.xlabel('Python + scipy estimate')
+plt.ylabel('Residuals ( python[Z] - idl[Z])')
+matched = np.where(py['Z'] - idl['Z'] <= 10**-4)[0]
+correct = len(matched) * 100.0 /len(py['Z'])
+plt.title("%4.2f%% same predictions" %correct)
+plt.figure()
+plt.plot(np.arange(7,10), np.zeros(len(np.arange(7,10))), 'b-')
+plt.errorbar(gpy['Z'], gpy['Z']-idl['Z'],fmt = 'ro')
+plt.xlabel('Python + gpy estimate')
+plt.ylabel('Residuals ( python[Z] - idl[Z])')
+matched = np.where(gpy['Z'] - idl['Z'] <= 10**-4)[0]
+correct = len(matched) * 100.0 /len(gpy['Z'])
+plt.title("%4.2f%% same predictions" %correct)
