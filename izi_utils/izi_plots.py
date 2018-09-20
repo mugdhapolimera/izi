@@ -2,13 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
-#sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
+if sys.platform == 'linux2':
+    sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
+else:
+    sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 from plotratio import plotratioz 
 from plotratio import plotratioq
 
 #os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots/')
-os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\izi_plots')
+if sys.platform == 'linux2':
+    os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/izi_plots')
+else: 
+    os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\izi_plots')
 def izi_pdf(d, grid, postz, postq, post, like, plot_flag):
     
     #CALCULATE 1-,2-,3- SIGMA VALUES

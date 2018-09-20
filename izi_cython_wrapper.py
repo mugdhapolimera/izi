@@ -1,11 +1,21 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 18 13:24:44 2018
+
+@author: mugpol
+"""
+
 import numpy as np
 import os
 from astropy.table import Table
 import pandas as pd
 import pickle
 import time
-
+import multiprocessing
+%load_ext cythonmagic
 # Setting System Path
+%%cython
 import sys
 #Importing Custom Utility Files
 #Set Path to Data Directory
@@ -19,16 +29,15 @@ else:
     from izi import izi
     os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes')
 
+
 #Load Resolve Catalog 
 #TODO : Load from the server
 #inputfile = 'RESOLVE_SDSS_dext.fits'
-inputfile = 'RESOLVE_all2.fits'
+inputfile = 'RESOLVE_all.fits'
 dat = Table.read(inputfile, format='fits')
 infile = dat#.to_pandas()
 #print infile
 cols = infile.keys()
-#infile.columns[0] = 'NAME'
-#print infile.columns
 
 #Define Names of Flux lines according to Catalog
 #TODO: Make automated script   
@@ -75,34 +84,48 @@ fluxnames = ['F_OIII_5007_ERR_BROAD' ,
 '''
 #Making Flux and Error Arrays
 if sys.platform == 'linux2':
-    f1 = open('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_Z_3.txt', 'w')
-    f2 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_q_3.txt", "w")  
-    f3 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_results_3.pkl", "w")  
+    f1 = open('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_Z_multiproc.txt', 'w')
+    f2 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_q_multiproc.txt", "w")  
+    f3 = open("/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/results/IZI_results_multiproc.pkl", "w")  
 else:
-    f1 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_Z_3.txt', 'a+')
-    f2 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_q_3.txt', 'a+')
-    f3 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_results_3.pkl', 'w+')
+    f1 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_Z_multiproc.txt', 'a+')
+    f2 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_q_multiproc.txt', 'a+')
+    f3 = open('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/IZI_results_multiproc.pkl', 'w+')
 
 f1.write("#Name \t Z_Estimate \t Err_down \t Err_up\r\n")
 f2.write("#Name \t q_Estimate \t Err_down \t Err_up\r\n")
-infile['NAME'] = infile['col0']
-print len(infile['NAME'])
+
 t1 = time.time()         
-for gal in range(len(infile['NAME'])):
+print t1
+def call_izi(gal_name):
     fluxin = []
     errorin = []
-    print gal, infile['NAME'][gal]
+    print gal_name
+    gal = np.where(infile['NAME'] == gal_name)[0][0]
     for i in range(0,len(fluxnames)):
+            print 'Making flux arrays'
             fluxin.append(infile[fluxnames[i]][gal])
             errorin.append(infile[errornames[i]][gal])
     #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
     #d = izi(fluxin, errorin, idin, plot_flag = 0, name = str(infile['NAME'][gal]), intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
-    d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), plot_flag = 0, print_flag = 0, method = 'scipy')
+    print 'Calling IZI'
+    izi(fluxin, errorin, idin, name = gal_name, plot_flag = 0, print_flag = True, method = 'scipy')
     #print d
-    f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
-    f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
-    pickle.dump(d, f3)    
-    
+    #print 'Writing Results to File'
+    #f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
+    #f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
+    #pickle.dump(d, f3)  
+    print 'Finished processing Galaxy ', gal_name
+ 
+gals = [infile['NAME'][0], infile['NAME'][1], infile['NAME'][3]]
+print gals
+
+#Creating pool with 32 processors for cielo
+#pool = multiprocessing.Pool(processes = 2)
+#r = pool.map(call_izi, gals)
+#pool.close()
+%%time
+call_izi(gals[0])
 f1.close()
 f2.close()
 f3.close()
