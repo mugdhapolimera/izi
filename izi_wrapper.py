@@ -11,18 +11,18 @@ import sys
 #Set Path to Data Directory
 if sys.platform == 'linux2':
     sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-    from izi import izi
+    #from izi import izi
     os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/')
 
 else:
     sys.path.append('C:\Users\mugdhapolimera\github\izi')
-    from izi import izi
+    #from izi import izi
     os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes')
 
 #Load Resolve Catalog 
 #TODO : Load from the server
-#inputfile = 'RESOLVE_SDSS_dext.fits'
-inputfile = 'RESOLVE_all2.fits'
+inputfile = 'RESOLVE_SDSS_dext.fits'
+#inputfile = 'RESOLVE_all2.fits'
 dat = Table.read(inputfile, format='fits')
 infile = dat#.to_pandas()
 #print infile
@@ -88,6 +88,7 @@ f2.write("#Name \t q_Estimate \t Err_down \t Err_up\r\n")
 infile['NAME'] = infile['col0']
 print len(infile['NAME'])
 t1 = time.time()         
+'''
 for gal in range(len(infile['NAME'])):
     fluxin = []
     errorin = []
@@ -102,7 +103,7 @@ for gal in range(len(infile['NAME'])):
     f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
     f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
     pickle.dump(d, f3)    
-    
+'''    
 f1.close()
 f2.close()
 f3.close()
