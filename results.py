@@ -30,41 +30,53 @@ py  = np.genfromtxt('IZI_Z.txt', dtype = None, names = ['name', 'Z', 'err_down',
 #os.chdir('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/')
 gpy = np.genfromtxt('IZI_Z2_gpy.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 
-np.polyfit(idl['Z'],py['Z'],1)#,w=1/np.sqrt(y_err**2 + x_err**2),full=False,cov=True)
-plot_flag = 0
+#np.polyfit(idl['Z'],py['Z'],1)#,w=1/np.sqrt(y_err**2 + x_err**2),full=False,cov=True)
+xarr = np.arange(7.3, 9.3, 0.1)
+def line(p, xarr):
+    return p[0]*xarr + p[1]
+
+plot_flag = 1
 if plot_flag:    
     plt.figure()
-    plt.plot(np.arange(7,10), np.arange(7,10), 'b-')
+    plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
     plt.xlabel("IDL Z estimates")
     plt.ylabel("Python Z estimates (with scipy interpolation)")
-    #for i in range(len(py)):
-    #    plt.errorbar(idl[i][1], py[i][1], xerr = [[idl[i][3]], [idl[i][2]]], yerr = [[py[i][2]], [py[i][3]]], fmt = 'ro')
     plt.errorbar(idl['Z'], py['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [py['err_down'], py['err_up']], fmt = 'o')
-    
-    plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
-    
-    plt.figure()
-    plt.plot(np.arange(7,10), np.arange(7,10), 'b-')
-    plt.errorbar(py['Z'], gpy['Z'], xerr = [py['err_down'], py['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
-    
+    p = np.polyfit(idl['Z'],py['Z'],1)
+    plt.plot(xarr, line(p,xarr))    
+    #plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
     
     plt.figure()
-    plt.plot(np.arange(7,10), np.zeros(len(np.arange(7,10))), 'b-')
+    plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
+    plt.xlabel("IDL Z estimates")
+    plt.ylabel("Python Z estimates (with gpy interpolation)")
+    plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')    
+    p = np.polyfit(idl['Z'],gpy['Z'],1)
+    plt.plot(xarr, line(p,xarr))    
+    #plt.errorbar(py['Z'], gpy['Z'], xerr = [py['err_down'], py['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
+        
+    plt.figure()
+    plt.plot(np.arange(7.3,9.3), np.zeros(len(np.arange(7.3,9.3))), 'b-')
     plt.errorbar(py['Z'], py['Z']-idl['Z'],fmt = 'ro')
     plt.xlabel('Python + scipy estimate')
     plt.ylabel('Residuals ( python[Z] - idl[Z])')
+    #p = np.polyfit(idl['Z'],py['Z'],1)
+    #plt.plot(xarr, line(p,xarr))    
+        
     
-    
-    unmatched = np.where(abs(py['Z']+ - idl['Z']) <= intersection(py['err_up'], idl['err_up']))[0]
-    correct = len(matched) * 100.0 /len(py['Z'])
+    py_matched = [i for i in range(len(idl)) if (abs(py['Z'][i]+ - idl['Z'][i]) 
+         <= intersection((-py['err_down'][i], abs(py['err_up'][i])), (-idl['err_down'][i], idl['err_up'][i])))]
+    correct = len(py_matched) * 100.0 /len(py['Z'])
     plt.title("%4.2f%% same predictions" %correct)
+
     plt.figure()
-    plt.plot(np.arange(7,10), np.zeros(len(np.arange(7,10))), 'b-')
+    plt.plot(np.arange(7.3,9.3), np.zeros(len(np.arange(7.3,9.3))), 'b-')
     plt.errorbar(gpy['Z'], gpy['Z']-idl['Z'],fmt = 'ro')
     plt.xlabel('Python + gpy estimate')
     plt.ylabel('Residuals ( python[Z] - idl[Z])')
-    matched = np.where(gpy['Z'] - idl['Z'] <= 10**-4)[0]
-    correct = len(matched) * 100.0 /len(gpy['Z'])
+    gpy_matched = [i for i in range(len(idl)) if (abs(gpy['Z'][i]+ - idl['Z'][i]) 
+         <= intersection((-gpy['err_down'][i], abs(gpy['err_up'][i])), (-idl['err_down'][i], idl['err_up'][i])))]
+    correct = len(gpy_matched) * 100.0 /len(gpy['Z'])
     plt.title("%4.2f%% same predictions" %correct)
 
 #unmatched = np.where(abs(py['Z'] - idl['Z']) >= 10**-4)[0]

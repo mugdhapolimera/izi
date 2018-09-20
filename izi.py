@@ -27,6 +27,13 @@ import izi_plots
 def uprior(xaxis):
     return 1./(xaxis[1]-xaxis[0])
 
+def userprior (x, xarr, yarr):
+# interpolates a user provided prior (xarr, yarr) to x
+# returns 0 if x is outside range of xarr
+  if (x <= min(xarr) or x >= max(xarr)) 
+      return 0
+  interpfunc = interpolate.interp1d(xarr, yarr)
+  return interpfunc(x)
 
 #def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
 def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
@@ -71,6 +78,11 @@ def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugp
     else:
         logOHsun = grid0['LOGOHSUN'][0] 
     
+    if 'logzprior' in kwargs.keys():
+        logzprior = kwargs['logzprior']
+
+    if 'logqprior' in kwargs.keys():
+        logqprior = kwargs['logqprior']
     
     #CUT GRID TO LOGZLIMITS AND LOGQLIMITS 
     try:
