@@ -30,13 +30,13 @@ def uprior(xaxis):
 def userprior (x, xarr, yarr):
 # interpolates a user provided prior (xarr, yarr) to x
 # returns 0 if x is outside range of xarr
-  if (x <= min(xarr) or x >= max(xarr)) 
+  if (x <= min(xarr) or x >= max(xarr)): 
       return 0
   interpfunc = interpolate.interp1d(xarr, yarr)
   return interpfunc(x)
 
-#def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
-def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
+def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
+#def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
         plot_flag = 1, print_flag = True, epsilon = 0.15, nz1 = 50, nq1 = 50, interpolate_flag = True, outgridfile = True, nonorm = False, 
         method = 'scipy', **kwargs ):
     

@@ -10,13 +10,15 @@ import sys
 #Importing Custom Utility Files
 #Set Path to Data Directory
 if sys.platform == 'linux2':
+    print 'Linux'
     sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-    #from izi import izi
+    from izi import izi
     os.chdir('/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/')
 
-else:
+elif sys.platform == 'win32':
+    print 'Windows'
     sys.path.append('C:\Users\mugdhapolimera\github\izi')
-    #from izi import izi
+    from izi import izi
     os.chdir('C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes')
 
 #Load Resolve Catalog 
@@ -85,17 +87,19 @@ else:
 
 f1.write("#Name \t Z_Estimate \t Err_down \t Err_up\r\n")
 f2.write("#Name \t q_Estimate \t Err_down \t Err_up\r\n")
-infile['NAME'] = infile['col0']
+#infile['NAME'] = infile['col0']
 print len(infile['NAME'])
 t1 = time.time()         
-'''
-for gal in range(len(infile['NAME'])):
+
+for gal in range(1):#len(infile['NAME'])):
     fluxin = []
     errorin = []
     print gal, infile['NAME'][gal]
     for i in range(0,len(fluxnames)):
             fluxin.append(infile[fluxnames[i]][gal])
             errorin.append(infile[errornames[i]][gal])
+    print fluxin
+    print errorin
     #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
     #d = izi(fluxin, errorin, idin, plot_flag = 0, name = str(infile['NAME'][gal]), intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
     d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), plot_flag = 0, print_flag = 0, method = 'scipy')
@@ -103,7 +107,7 @@ for gal in range(len(infile['NAME'])):
     f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
     f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
     pickle.dump(d, f3)    
-'''    
+  
 f1.close()
 f2.close()
 f3.close()
