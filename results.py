@@ -25,10 +25,10 @@ def intersection(interval_1, interval_2):
         return end - start
     return None
 #idl = np.genfromtxt('RESOLVE_izioutv1.txt', dtype = None)
-idl = np.genfromtxt('IZI_Z_idl.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
-py  = np.genfromtxt('IZI_Z.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
+idl = np.genfromtxt('IZI_Z_idl_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_up', 'err_down'])
+py  = np.genfromtxt('IZI_Z_idl_Amandalines.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 #os.chdir('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/')
-gpy = np.genfromtxt('IZI_Z2_gpy.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
+#gpy = np.genfromtxt('IZI_Z2_gpy.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 
 #np.polyfit(idl['Z'],py['Z'],1)#,w=1/np.sqrt(y_err**2 + x_err**2),full=False,cov=True)
 xarr = np.arange(7.3, 9.3, 0.1)
@@ -46,6 +46,7 @@ if plot_flag:
     plt.plot(xarr, line(p,xarr))    
     #plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
     
+    '''
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
     plt.xlabel("IDL Z estimates")
@@ -78,7 +79,7 @@ if plot_flag:
          <= intersection((-gpy['err_down'][i], abs(gpy['err_up'][i])), (-idl['err_down'][i], idl['err_up'][i])))]
     correct = len(gpy_matched) * 100.0 /len(gpy['Z'])
     plt.title("%4.2f%% same predictions" %correct)
-
+'''
 #unmatched = np.where(abs(py['Z'] - idl['Z']) >= 10**-4)[0]
 #Some galaxies have error_up as negative!
 unmatched = [i for i in range(len(idl)) if (abs(py['Z'][i]+ - idl['Z'][i]) 
@@ -97,9 +98,10 @@ else:
     os.chdir('C:/Users/mugdhapolimera/github/izi/results/')
 
 #python_data = pickle.load(open("IZI_results.pkl", "r"))
-f = open("IZI_results.pkl", "r")
+'''f = open("IZI_results.pkl", "r")
 for i in range(11):#len(idl)):
     d = pickle.load(f)
     if (i ==2) or (i in weird):
         print d['name']
         print d.flux[np.where(d.flux != -666.0)]        
+'''

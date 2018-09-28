@@ -15,8 +15,8 @@ import scipy.interpolate
 
 # Setting System Path
 import sys
-#sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
-sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
+sys.path.append('/afs/cas.unc.edu/users/m/u/mugpol/github/izi/izi_utils/')
+#sys.path.append('C:\Users\mugdhapolimera\github\izi\izi_utils')
 
 #Importing Custom Utility Files
 #from izi_utils.tabulate import idl_tabulate
@@ -31,7 +31,7 @@ def uprior(xaxis):
 
 
 def izi(fluxin, errorin, idin, name, grid0, plot_flag = 1, print_flag = True, epsilon = 0.15, nz1 = 50, nq1 = 50, outgridfile = True, nonorm = False, **kwargs ):
-#def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
+    #def izi(fluxin, errorin, idin, name, gridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
             
 #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
 
@@ -162,14 +162,15 @@ def izi(fluxin, errorin, idin, name, grid0, plot_flag = 1, print_flag = True, ep
         idnorm = 'hbeta'
         if (d.flux[[x for x,item in enumerate(d.id) if idnorm in item][0]] == -666):
             idnorm = (d.id[measured])[np.argsort(d.flux[measured])][::-1][0] 
-
+        
         #normalize data
         norm = d.flux[[x for x,item in enumerate(d.id) if idnorm in item][0]]
         d.flux[measured] = d.flux[measured]/norm
         d.error[good] = d.error[good]/norm
-
         #normalize grid
+ 
         for i in range(ngrid):
+            idnorm = str(np.char.strip(idnorm))
             norm = grid[i]['FLUX'][[x for x,item in enumerate(grid[i]['ID']) if idnorm in item][0]]
             grid[i]['FLUX'] = grid[i]['FLUX']/norm
 
@@ -354,8 +355,10 @@ def izi(fluxin, errorin, idin, name, grid0, plot_flag = 1, print_flag = True, ep
         izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
     
     return d
+
+#def izi_multi(Z_path, q_path, d_path, infile, fluxnames, errornames, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits',
     
-def izi_multi(Z_path, q_path, d_path, infile, fluxnames, errornames, idin, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits',
+def izi_multi(Z_path, q_path, d_path, infile, fluxnames, errornames, idin, gridfile ='/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/grids/l09_high_csf_n1e2_6.0Myr.fits', 
               interpolate_flag = True, plot_flag = 0, print_flag = 0, method = 'scipy', nz1 = 50, nq1 = 50, **kwargs):
     f1 = open(Z_path, 'w+')
     f1.write("#Name \t Z_Estimate \t Err_down \t Err_up\r\n")
@@ -381,7 +384,7 @@ def izi_multi(Z_path, q_path, d_path, infile, fluxnames, errornames, idin, gridf
         t2 = time.time()
         print t2-t1
        
-    
+    grid['ID'] = [np.char.strip(x) for x in grid['ID']]
     for gal in range(len(infile['NAME'])):
         t1 = time.time()
         fluxin = []
@@ -392,7 +395,7 @@ def izi_multi(Z_path, q_path, d_path, infile, fluxnames, errornames, idin, gridf
                 errorin.append(infile[errornames[i]][gal])
         #kwargs =  logOHsun, intergridfile, logzlimits, logqlimits ,logzprior, logqprior (logz/q prior have no application in the original code)
         #d = izi(fluxin, errorin, idin, plot_flag = 0, name = str(infile['NAME'][gal]), intergridfile = '/afs/cas.unc.edu/users/m/u/mugpol/Documents/IZI/izi/outputgrid_linear.fits', interpolate_flag = False)
-        d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), grid0 = grid0, plot_flag = 0, print_flag = 0, method = 'scipy',
+        d = izi(fluxin, errorin, idin, name = str(infile['NAME'][gal]), grid0 = grid0, plot_flag = 0, print_flag = 0, method = method,
             grid = grid, ngrid = ngrid, zarr = zarr, qarr = qarr, dlogz = dlogz, dlogq = dlogq, nz1 = nz1, nq1 = nq1)
         f1.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.Zgrid, d.edownZgrid, d.eupZgrid))
         f2.write(" %s \t %f \t %f \t %f \r\n" %(d['name'], d.qgrid, d.edownqgrid, d.eupqgrid))
