@@ -12,4 +12,5 @@ for i in range(len(grid0['FLUX'][0])):
 col_names = ['LOGZ', 'LOGQ'] + list( grid0['ID'][0])
 
 t = Table(cols, names=(col_names))
-t.write(new_gridfile, format='fits')
+print t.keys()
+#t.write(new_gridfile, format='fits')

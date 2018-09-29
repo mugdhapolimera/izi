@@ -25,10 +25,10 @@ def intersection(interval_1, interval_2):
         return end - start
     return None
 #idl = np.genfromtxt('RESOLVE_izioutv1.txt', dtype = None)
-idl = np.genfromtxt('IZI_Z_idl_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_up', 'err_down'])
-py  = np.genfromtxt('IZI_Z_idl_Amandalines.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
+py = np.genfromtxt('IZI_Z_idl_Amandalines.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
+idl  = np.genfromtxt('IZI_Z_idl_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_up', 'err_down'])
 #os.chdir('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/')
-#gpy = np.genfromtxt('IZI_Z2_gpy.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
+gpy = np.genfromtxt('IZI_Z_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 
 #np.polyfit(idl['Z'],py['Z'],1)#,w=1/np.sqrt(y_err**2 + x_err**2),full=False,cov=True)
 xarr = np.arange(7.3, 9.3, 0.1)
@@ -46,7 +46,7 @@ if plot_flag:
     plt.plot(xarr, line(p,xarr))    
     #plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
     
-    '''
+    
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
     plt.xlabel("IDL Z estimates")
@@ -55,7 +55,7 @@ if plot_flag:
     p = np.polyfit(idl['Z'],gpy['Z'],1)
     plt.plot(xarr, line(p,xarr))    
     #plt.errorbar(py['Z'], gpy['Z'], xerr = [py['err_down'], py['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
-        
+    
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.zeros(len(np.arange(7.3,9.3))), 'b-')
     plt.errorbar(py['Z'], py['Z']-idl['Z'],fmt = 'ro')
@@ -63,7 +63,7 @@ if plot_flag:
     plt.ylabel('Residuals ( python[Z] - idl[Z])')
     #p = np.polyfit(idl['Z'],py['Z'],1)
     #plt.plot(xarr, line(p,xarr))    
-        
+    '''    
     
     py_matched = [i for i in range(len(idl)) if (abs(py['Z'][i]+ - idl['Z'][i]) 
          <= intersection((-py['err_down'][i], abs(py['err_up'][i])), (-idl['err_down'][i], idl['err_up'][i])))]
