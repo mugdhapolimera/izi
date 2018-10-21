@@ -25,8 +25,8 @@ def intersection(interval_1, interval_2):
         return end - start
     return None
 #idl = np.genfromtxt('RESOLVE_izioutv1.txt', dtype = None)
-py = np.genfromtxt('IZI_Z_idl_Amandalines.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
-idl  = np.genfromtxt('IZI_Z_idl_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_up', 'err_down'])
+idl = np.genfromtxt('IZI_Z_idl_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_up', 'err_down'])
+py  = np.genfromtxt('IZI_Z_idl_Amandalines_newer.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 #os.chdir('C:/Users/mugdhapolimera/Desktop/UNC/Courses/Research/Codes/results/')
 gpy = np.genfromtxt('IZI_Z_Amanda.txt', dtype = None, names = ['name', 'Z', 'err_down', 'err_up'])
 
@@ -39,8 +39,11 @@ plot_flag = 1
 if plot_flag:    
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
-    plt.xlabel("IDL Z estimates")
-    plt.ylabel("Python Z estimates (with scipy interpolation)")
+    #plt.xlabel("IDL Z estimates")
+    #plt.ylabel("Python Z estimates (with scipy interpolation)")
+    plt.xlabel("Mugdha - IDL Z estimates")
+    plt.ylabel("Amanda - IDL Z estimates")
+        
     plt.errorbar(idl['Z'], py['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [py['err_down'], py['err_up']], fmt = 'o')
     p = np.polyfit(idl['Z'],py['Z'],1)
     plt.plot(xarr, line(p,xarr))    
@@ -49,13 +52,16 @@ if plot_flag:
     
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.arange(7.3,9.3), 'b-')
-    plt.xlabel("IDL Z estimates")
-    plt.ylabel("Python Z estimates (with gpy interpolation)")
+    #plt.xlabel("IDL Z estimates")
+    #plt.ylabel("Python Z estimates (with gpy interpolation)")
+    plt.xlabel("Mugdha - Python Z estimates")
+    plt.ylabel("Amanda - IDL Z estimates")
+        
     plt.errorbar(idl['Z'], gpy['Z'], xerr = [idl['err_down'], idl['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')    
     p = np.polyfit(idl['Z'],gpy['Z'],1)
     plt.plot(xarr, line(p,xarr))    
     #plt.errorbar(py['Z'], gpy['Z'], xerr = [py['err_down'], py['err_up']], yerr = [gpy['err_down'], gpy['err_up']], fmt = 'ro')
-    
+    '''
     plt.figure()
     plt.plot(np.arange(7.3,9.3), np.zeros(len(np.arange(7.3,9.3))), 'b-')
     plt.errorbar(py['Z'], py['Z']-idl['Z'],fmt = 'ro')
@@ -63,7 +69,7 @@ if plot_flag:
     plt.ylabel('Residuals ( python[Z] - idl[Z])')
     #p = np.polyfit(idl['Z'],py['Z'],1)
     #plt.plot(xarr, line(p,xarr))    
-    '''    
+     
     
     py_matched = [i for i in range(len(idl)) if (abs(py['Z'][i]+ - idl['Z'][i]) 
          <= intersection((-py['err_down'][i], abs(py['err_up'][i])), (-idl['err_down'][i], idl['err_up'][i])))]

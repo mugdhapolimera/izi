@@ -1,0 +1,24 @@
+import numpy as np
+from astropy.io import fits
+import pandas as pd
+
+#data1 = np.genfromtxt("RESOLVE_liveOctober2018.csv", delimiter=",",dtype=None,names=True)
+df1 = pd.read_csv("RESOLVE_liveOctober2018.csv",index_col='name')
+
+#data2 = np.genfromtxt("RESOLVE_izioutv1.txt", delimiter="",dtype=None,names=True)
+#df2 = pd.DataFrame(data=data2,index=data2['name'])
+
+#dftemp = pd.merge(df1,df2,how="left",left_index=True,right_index=True)
+
+hdulist = fits.open(r"C:\Users\mugdhapolimera\github\SDSS_spectra\RESOLVE_SDSS_full_dext.fits")
+name3 = hdulist[1].data['NAME']
+sort3 = np.argsort(name3)
+data3 = hdulist[1].data[sort3]
+data3 = np.array(data3)
+newdata3 = data3.byteswap().newbyteorder()
+df3 = pd.DataFrame(data=newdata3,index=newdata3['NAME'])
+
+dfres = pd.merge(df1,df3,how="left",left_index=True,right_index=True)
+dfres.to_pickle('RESOLVE_SDSS_full.pkl')
+
+
