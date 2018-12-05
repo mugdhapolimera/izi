@@ -32,7 +32,7 @@ def userprior (x, xarr, yarr):
 # returns 0 if x is outside range of xarr
   if (x <= min(xarr) or x >= max(xarr)): 
       return 0
-  interpfunc = interpolate.interp1d(xarr, yarr)
+  interpfunc = scipy.interpolate.interp1d(xarr, yarr)
   return interpfunc(x)
 
 def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr.fits', 
@@ -375,10 +375,10 @@ def izi(fluxin, errorin, idin, name, gridfile = 'C:\Users\mugdhapolimera\Desktop
     os.chdir(directory)
     if (np.sum(post) == 0. or np.sum(like) == 0.):
         print 'stopped'
-        return d
+        #return d
     else:
         izi_plots.izi_pdf(d = d, grid = grid, postz = postz, postq = postq, post = post, like = like, plot_flag = plot_flag)
         izi_plots.zratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
         izi_plots.qratios_plots(grid = grid, grid0 = grid0, d = d, flag0 = flag0, plot_flag = plot_flag)
     
-    #return d
+    return d
