@@ -1,0 +1,53 @@
+
+input = getenv('izi') + 'RESOLVE_bpt1_filter.fits'
+
+file=mrdfits(input, 1);
+
+; idin = ['oiii5007', 'oiii4959', 'oiii4363' , 'nii6584',  'nii6548', 'hbeta', 'halpha' ]
+;fluxnames  = ['oii_3726_flux_ext', 'oii_3729_flux_ext', 'h_gamma_flux_ext', 'h_beta_flux_ext', 'oiii_4959_flux_ext', 
+;             'oiii_5007_flux_ext', 'oi_6300_flux_ext', 'nii_6548_flux_ext', 'h_alpha_flux_ext', 'nii_6584_flux_ext', 
+;             'sii_6717_flux_ext', 'sii_6731_flux_ext'] 
+;errornames = ['oii_3726_flux_ext_err', 'oii_3729_flux_ext_err', 'h_gamma_flux_ext_err', 'h_beta_flux_ext_err', 
+;              'oiii_4959_flux_ext_err', 'oiii_5007_flux_ext_err', 'oi_6300_flux_ext_err', 'nii_6548_flux_ext_err', 
+;              'h_alpha_flux_ext_err', 'nii_6584_flux_ext_err', 'sii_6717_flux_ext_err', 'sii_6731_flux_ext_err']
+   
+
+idin = ['oii3726', 'oii3729', 'neiii3869', 'oiii4363', 'hgamma', 'hbeta', 'oiii4959', 'oiii5007', 'hei5875', 'oi6300', 'nii6548', 'halpha', 'nii6584', 'sii6717', 'sii6731', 'ariii7136']
+
+; for i=0, len(idin) do begin
+;  fluxin = [file[i].F_OIII_5007_BROAD, file[i].F_OIII_4960_BROAD, 
+;  file[i].F_OIII_4363_BROAD,  file[i].F_NII_6586_BROAD,  file[i].F_NII_6548_BROAD,  file[i].F_HB_BROAD, file[i].F_HA_BROAD]
+;  errorin = [file[i].F_OIII_5007_ERR_BROAD, file[i].F_OIII_4960_ERR_BROAD, file[i].F_OIII_4363_ERR_BROAD, file[i].F_NII_6586_ERR_BROAD,  file[i].F_NII_6548_ERR_BROAD, file[i].F_HB_ERR_BROAD, file[i].F_HA_ERR_BROAD]
+;  outgridfile = 'outputgrid_linear.fits'
+;  result = izi(fluxin, errorin, idin, /plot, /outgridfile, /linear)
+;  print, result
+; endfor
+fname1='IZI_Z_idl1.txt' 
+OPENW,1,fname1  
+PRINTF, 1, '#Name   Z    Err_down    Err_up'
+fname2='IZI_q_idl1.txt' 
+OPENW,2,fname2 
+PRINTF, 2, '#Name   q    Err_down    Err_up'
+      
+TIC
+for i=0,n_elements(file.NAME)-1 do begin
+      print, file[i].NAME
+      fluxin = [file[i].oii_3726_flux, file[i].oii_3729_flux, file[i].neiii_3869_flux, file[i].h_gamma_flux, file[i].oiii_4363_flux, file[i].h_beta_flux, file[i].oiii_4959_flux, file[i].oiii_5007_flux, file[i].hei_5876_flux, file[i].oi_6300_flux, file[i].nii_6548_flux, file[i].h_alpha_flux,  file[i].nii_6584_flux, file[i].sii_6717_flux, file[i].sii_6731_flux, file[i].ariii7135_flux]
+
+      errorin = [file[i].oii_3726_flux_err, file[i].oii_3729_flux_err, file[i].neiii_3869_flux_err, file[i].h_gamma_flux_err, file[i].oiii_4363_flux_err, file[i].h_beta_flux_err, file[i].oiii_4959_flux_err, file[i].oiii_5007_flux_err, file[i].hei_5876_flux_err, file[i].oi_6300_flux_err, file[i].nii_6548_flux_err, file[i].h_alpha_flux_err, file[i].nii_6584_flux_err, file[i].sii_6717_flux_err, file[i].sii_6731_flux_err, file[i].ariii7135_flux_err]
+      outgridfile = 'outputgrid_linear.fits'
+      d = izi(fluxin, errorin, idin, /linear);, /outgridfile, /plot)
+      ;print, file[i].NAME, d.Zgrid, d.edownZgrid, d.eupZgrid
+      ;print, result
+      PRINTF, 1, file[i].NAME, d.Zgrid, d.edownZgrid, d.eupZgrid ;, FORMAT = ' {%s} {%f} {%f} {%f} '
+      PRINTF, 2, file[i].NAME, d.qgrid, d.edownqgrid, d.eupqgrid;, FORMAT = ' {%s} {%f} {%f} {%f} '
+
+      
+  
+endfor
+CLOSE,1
+CLOSE,2
+            
+
+TOC
+END
