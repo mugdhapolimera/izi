@@ -1,12 +1,10 @@
 from astropy.table import Table
 import pandas as pd
 import numpy as np
-gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\grids\k13_PN_csf_n3.5e2_4.0Myr.fits'
-#l09_high_csf_n1e2_6.0Myr.fits'
+gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\grids\l09_high_csf_n1e2_6.0Myr.fits'
 grid0 = Table.read(gridfile, format='fits')
 
-new_gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\k13_PN_csf_n3.5e2_4.0Myr_new.fits'
-#l09_high_csf_n1e2_6.0Myr_new.fits'
+new_gridfile = 'C:\Users\mugdhapolimera\Desktop\UNC\Courses\Research\Codes\l09_high_csf_n1e2_6.0Myr_new.fits'
 cols = []
 cols.append(list(grid0['LOGZ']+grid0['LOGOHSUN']))
 cols.append(list(grid0['LOGQ']))
@@ -16,7 +14,8 @@ col_names = ['LOGZ', 'LOGQ'] + list( grid0['ID'][0])
 
 t = Table(cols, names=(col_names))
 print t.keys()
-t.write(new_gridfile, format='fits')
+
+#t.write(new_gridfile, format='fits')
 
 '''
 gridfile = 'C:/Users/mugdhapolimera/github/izi/Richardson_bpass_binary_csf_n1e2_40.0Myr.csv'
