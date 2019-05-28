@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.interpolate
-import GPy as gpy
+#import GPy as gpy
 from astropy.table import Table
+import pandas as pd
+import itertools
 
 def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
     
@@ -163,3 +165,91 @@ def grid_interpolate(grid0, plot = False, method = 'scipy', nz1 = 50, nq1 = 50):
 
     
     return grid, ngrid, zarr, qarr, dlogz, dlogq    
+
+'''def grid_interpolate3d(grid0, plot = False, method = 'scipy', na1 = 40,
+                       nz1 = 50, nq1 = 50):
+    
+    #CREATE AN EMPTY GRID 
+    lines = list(grid0.keys())[4:]
+    nlines0 = len(lines)
+    grid = pd.DataFrame(index = range(na1*nz1*nq1), columns=list(grid0.keys())[1:])
+        
+    if (method == 'scipy'):
+        
+        agn = np.array(grid0['AGNFRAC'])
+        Z = np.array(grid0['LOGZ'])
+        q = np.array(grid0['LOGQ'])
+        
+        x = np.unique(agn)
+        y = np.unique(Z)
+        z = np.unique(q)
+        
+        agnarr = np.linspace(min(grid0['AGNFRAC']), max(grid0['AGNFRAC']), na1)
+        zarr = np.linspace(min(grid0['LOGZ']), max(grid0['LOGZ']), nz1)
+        qarr = np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq1)
+        
+        data = np.zeros([nlines0, len(x), len(y), len(z)])
+        fluxarr = np.zeros([nlines0,nz1,nq1,na1])
+        
+        gridx, gridy, gridz = np.meshgrid(agnarr, zarr, qarr)
+
+        X, Y, Z = np.meshgrid(x,y,z)
+
+        for l in range(1):#nlines0):
+            for i in range(len(x)): 
+                for j in range(len(y)):
+                    for k in range(len(z)):
+                        ind = np.where(((grid0['AGNFRAC'] == x[i]) & 
+                                        (grid0['LOGZ'] == y[j]) & 
+                                       (grid0['LOGQ'] == z[k])))[0]
+                    flux = np.array(grid0.iloc[ind,4:])[0]
+                    data[l][i][j][k] = flux[l]
+            
+            f = scipy.interpolate.RegularGridInterpolator((x,y,z),data[l,:,:,:])
+            fluxarr[l,:,:,:] = f(zip(agnarr,zarr,qarr))
+            fluxarr[l] = fluxarr[l].transpose()
+        
+        for i in range(na1):
+            for j in range(nz1):
+                for k in range(nq1):
+                    ngrid = i*nz1 + j*nq1 + k
+                    grid['AGNFRAC'].iloc[ngrid] = agnarr[i]
+                    grid['LOGZ'].iloc[ngrid] = zarr[j]
+                    grid['LOGQ'].iloc[ngrid] = qarr[k]
+                    for n in range(nlines0):
+                        grid[lines[n]].iloc[ngrid] = fluxarr[n,i,j,k]
+                    #print 'yes'
+        dagn = (agnarr[na1-1]-agnarr[0])/(na1-1)
+        dlogz = (zarr[nz1-1]-zarr[0])/(nz1-1)
+        dlogq = (qarr[nq1-1]-qarr[0])/(nq1-1)
+        ngrid=ngrid+1
+    print grid
+
+    
+    return grid, ngrid, agnarr, zarr, qarr, dagn, dlogz, dlogq    
+'''
+
+def grid_interpolate3d (grid0, na = 50, nz = 50, nq = 50):
+    from NebulaBayes import NB1_Process_grids as proc_grid
+    linelist = list(grid0.keys())[4:]
+    grid, interp = proc_grid.initialise_grids(grid0, ["AGNFRAC", "LOGZ", "LOGQ"],
+                                            linelist, [na, nz, nq], 3)
+    
+    agnarr = np.linspace(min(grid0['AGNFRAC']), max(grid0['AGNFRAC']), na)
+    zarr = np.linspace(min(grid0['LOGZ']), max(grid0['LOGZ']), nz)
+    qarr = np.linspace(min(grid0['LOGQ']), max(grid0['LOGQ']), nq)
+    
+    arr = np.array(list(itertools.product(*[agnarr, zarr, qarr])))
+    
+    interp_grid = interp.grids['No_norm']
+    interp_flux = {}
+    for key in interp_grid.keys():
+        interp_flux[key] = (interp_grid[key].flatten())
+    df = pd.DataFrame(interp_flux, columns=interp_flux.keys()) #interpolated grid
+    df['AGNFRAC'] = arr[:,0]
+    df['LOGZ'] = arr[:,1]
+    df['LOGQ'] = arr[:,2]
+    return df
+
+    
+    
